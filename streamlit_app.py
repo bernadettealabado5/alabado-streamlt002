@@ -1,4 +1,4 @@
-#Input the relevant libraries
+# Input the relevant libraries
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -8,7 +8,6 @@ import seaborn as sns
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
 from sklearn import svm
-from sklearn.datasets import make_blobs
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
@@ -17,7 +16,7 @@ from sklearn.metrics import classification_report
 def app():
 
     st.title('Logistic Regression, Naive Bayes Classifiers and Support Vector Machine')
-    st.subheader('by Louie F. Cervantes M.Eng., WVSU College of ICT')
+    st.subheader('by Bernadette E. Alabado')
  
     st.write('Logistic Regression:')
     text = """Strengths: \nMore flexible: Can capture complex relationships between 
@@ -52,6 +51,15 @@ def app():
               SVMs are powerful for complex problems, but their efficiency and 
               interpretability need consideration.""")
 
+    # Load your dataset here
+    @st.cache
+    def load_data():
+        # Example: loading a CSV file
+        data = pd.read_csv("things_dataset.csv")
+        return data
+
+    data = load_data()
+
     # Create a slider with a label and initial value
     n_samples = st.slider(
         label="Number of samples (200 to 4000):",
@@ -77,7 +85,7 @@ def app():
         value=2,  # Initial value
     )
 
-    # Create the selecton of classifier
+    # Create the selection of classifier
     clf = GaussianNB() 
     options = ['Logistic Regression', 'Naive Bayes', 'Support Vector Machine']
     selected_option = st.selectbox('Select the classifier', options)
@@ -93,10 +101,9 @@ def app():
         clf = GaussianNB()
         
     if st.button('Start'):
-        centers = generate_random_points_in_square(-4, 4, -4, 4, n_clusters)
-        X, y = make_blobs(n_samples=n_samples, n_features=2,
-                    cluster_std=cluster_std, centers = centers,
-                    random_state=random_state)       
+        # Generate or load your dataset here
+        X = data[['feature1', 'feature2']].values
+        y = data['target'].values
         
         # Split the dataset into training and testing sets
         X_train, X_test, y_train, y_test = train_test_split(X, y, \
@@ -111,7 +118,7 @@ def app():
         st.text(cm)
         st.subheader('Performance Metrics')
         st.text(classification_report(y_test, y_test_pred))
-        st.subheader('VIsualization')
+        st.subheader('Visualization')
         visualize_classifier(clf, X_test, y_test_pred)
         st.session_state['new_cluster'] = False
 
@@ -156,26 +163,6 @@ def visualize_classifier(classifier, X, y, title=''):
     
     st.pyplot(fig)
 
-def generate_random_points_in_square(x_min, x_max, y_min, y_max, num_points):
-    """
-    Generates a NumPy array of random points within a specified square region.
-
-    Args:
-        x_min (float): Minimum x-coordinate of the square.
-        x_max (float): Maximum x-coordinate of the square.
-        y_min (float): Minimum y-coordinate of the square.
-        y_max (float): Maximum y-coordinate of the square.
-        num_points (int): Number of points to generate.
-
-    Returns:
-        numpy.ndarray: A 2D NumPy array of shape (num_points, 2) containing the generated points.
-    """
-
-    # Generate random points within the defined square region
-    points = np.random.uniform(low=[x_min, y_min], high=[x_max, y_max], size=(num_points, 2))
-
-    return points
-
-#run the app
+# run the app
 if __name__ == "__main__":
     app()
